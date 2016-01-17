@@ -23,6 +23,8 @@ Berger A. (1978). Long-term variations of daily insolation and
  Quaternary climatic changes. Journal of Atmospheric Science, 35(12),
  2362-2367.
 """
+import sys
+sys.path.append("/Users/minlanxi/Research/01_LAI/respy/")
 
 import numpy as np
 from respy.utils import constants as const

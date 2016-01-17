@@ -11,27 +11,29 @@ Here is an example to read a list of formatted txt files
 
 import numpy as np
 
-class Analysis(object)
+class Analysis(object):
 
-	def __init__(self):
-		self.variables = DataStructure()
-		self.Ystart    = np.int(self.SpecTrange[0][0:4])
-		self.Yend      = np.int(self.SpecTrange[1][0:4])
-		self.Index     = DataStructure()
-	
-
+	def __init__(self,index=None,field=None):
 		
-	def composite_difference(Index, variable):
+		self.index = index
+		self.field_grid = field.grid
+		self.dt0 = field.meta.startdate
+		self.dt1 = field.meta.enddate
 				
-		pos = np.where(Index[ystart-1948:Yend+1-1948] > 0.)
-		neg = np.where(Index[ystart-1948:yend+1-1948] < 0.)
+	def composite_difference(self):
 		
-		var_p = var[pos,:,:]
-		var_n = var[neg,:,:]
+		index_grid = self.index.get_griddata(self.dt0,self.dt1)		
+		variable   = self.field_grid	
+				
+		pos = np.where(index_grid[:] > 0.)
+		neg = np.where(index_grid[:] < 0.)
+		
+		var_p = variable[pos,:,:]
+		var_n = variable[neg,:,:]
 		
 		var_pos = np.mean(var_p[0,:,:,:], axis = 0)
 		var_neg = np.mean(var_n[0,:,:,:], axis = 0)
-		var_dif = np.substract(var_pos,var_neg)
+		var_dif = np.subtract(var_pos,var_neg)
 		
 		return var_dif
 

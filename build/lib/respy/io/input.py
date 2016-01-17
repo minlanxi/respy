@@ -16,77 +16,53 @@ rff.ReadFile()
 """ 
 
 import numpy as np
-#from respy.metadata.metadata import Metadata
 
-
-class ReadFiles(object):
-
-	def __init__(self, YLen = 4, metadata = None,
-					   StrPath = '', Prefix = '', Suffix = '', **kwargs):
-					   
-		self.Year    = metadata.year
-		self.Mon     = metadata.month
-		self.Day     = metadata.day
-		self.Hour    = metadata.hour
+class Read(object):
+	
+	def __init__(self,metadata=None):
+		self.metadata = metadata
+		self.DataArr = None
 		
-		self.YLen    = YLen
-		self.StrPath = StrPath
-		self.Prefix  = Prefix
-		self.Suffix  = Suffix
-
+	def ReadFiles(self):
+		# Read DataArr
+		datelist = self.metadata.datelist
+		
+		StrPath = self.metadata.filepath
+		Prefix  = self.metadata.filefix[0]
+		Suffix  = self.metadata.filefix[1]
+		YLen    = self.metadata.ylen
+	
+		try:
+			YLen > 0
+		except:
+			raise ValueError('Wrong metadata infomation')		
+		return readfiles(datelist,StrPath,Prefix,Suffix,YLen)
+	
 	def ReadFile(self):
-
-		DataList = []
-		
-		for iy in self.Year:
-			for im in self.Mon:
-				for id in self.Day:
-					for ih in self.Hour:
-					
-						if iy != '': StrYear  = np.str(np.int(iy))[self.YLen:self.YLen+2]
-						else: StrYear = ''
-						if im != '': StrMon   = np.str(np.int(im)).zfill(2)
-						else: StrMon = ''
-						if id != '': StrDay   = np.str(np.int(id)).zfill(2)
-						else: StrDay = ''
-						if ih != '': StrHour  = np.str(np.int(ih)).zfill(2)	
-						else: StrHour = ''
-									
-						Date = StrYear + StrMon + StrDay + StrHour						
-						Path = self.StrPath + self.Prefix + Date + self.Suffix
-						
-						DataLine = np.loadtxt(Path)
-						DataList.append(DataLine)
-						DataArr = np.vstack(DataList)
-		
+		# Read DataArr
+		filepath = self.metadata.filepath
+		filename = self.metadata.filename
+		DataArr = np.loadtxt(filepath+filename)
 		return DataArr
+		
 
-'''
-#	def WriteFile(Year,Month,Day,Hour,StrPath): '''
+def readfiles(datelist,StrPath,Prefix,Suffix,YLen):
 
-def to_grid(DataArr, metadata):
-	# Transfer DataArr to formed numpy grid data
-	TimeShape = DataArr.shape[0]
-	LonShape  = metadata.Longitude.shape[0]
-	LatShape  = metadata.Latitude.shape[0] 
-	MonShape  = metadata.Month.shape[0]
-	YearShape = metadata.Year.shape[0]
-	try:
-		DataArr.shape[1] = LatShape * LonShape
-	except:
-		raise ValueError('DataArr data does not match the formed grid.')		
-	return _to_grid(TimeShape,LatShape,Lonshape), metadata
+	DataList = []
+					
+	for i in range(len(datelist)):
 	
-def _to_grid(YearShape,MonShape,LatShape,Lonshape):
+		Date = np.str(datelist[i].year)[YLen:YLen+2] + np.str(datelist[i].month)
+		Path = StrPath + Prefix + Date + Suffix
+		
+		DataLine = np.loadtxt(Path)
+		DataList.append(DataLine)
+		DataArr = np.vstack(DataList)
+
+	return DataArr
+
 	
-	if metadata.Mon == '':
-		DataGrid = DataArr.reshape(YearShape,LatShape,Lonshape)
-	else:
-		DataTemp = DataArr.reshape(YearShape,MonShape,LatShape,Lonshape)
-		DataGrid = np.nanmean(DataTemp,axis=1)
-		del DataTemp
-				
-	return DataGrid
+
 	
 #class ReadFile(Read):
 
